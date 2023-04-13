@@ -11,7 +11,8 @@ if len(sys.argv) < 2:
 employee_id = sys.argv[1]
 
 # Make a request to the API to get the employee's TODO list
-response = requests.get(f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}")
+response = requests.get(
+    f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}")
 
 # Parse the response JSON to get the necessary information
 todos = response.json()
@@ -20,7 +21,8 @@ total_tasks = len(todos)
 completed_tasks = sum(todo['completed'] for todo in todos)
 
 # Print the employee TODO list progress
-print(f"Employee {todos[0]['userId']} is done with tasks({completed_tasks}/{total_tasks}):")
+print(
+    f"Employee {todos[0]['userId']} is done with tasks({completed_tasks}/{total_tasks}):")
 
 # Print the titles of completed tasks
 for todo in todos:
