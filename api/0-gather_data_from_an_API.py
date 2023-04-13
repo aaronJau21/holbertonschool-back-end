@@ -1,30 +1,37 @@
 #!/usr/bin/python3
 ''' Return information about his/her TODO list progress from an REST API '''
-import requests
-import sys
+from requests import get
+from sys import argv
 
-# Get the employee ID from the command line arguments
-if len(sys.argv) < 2:
-    print("Please provide an employee ID as a command line argument")
-    sys.exit(1)
 
-employee_id = sys.argv[1]
+def get_api():
+    ''' Gather data from an API '''
+    emp_id = int(argv[1])
+    emp_name = ''
+    tasks_done = 0
+    tasks_total = 0
+    tasks_titles = []
 
-# Make a request to the API to get the employee's TODO list
-response = requests.get(
-    f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}")
+    users_res = get('https://jsonplaceholder.typicode.com/users').json()
+    for user in users_res:
+        if user['id'] == emp_id:
+            emp_name = user['name']
+            break
 
-# Parse the response JSON to get the necessary information
-todos = response.json()
+    tasks_res = get('https://jsonplaceholder.typicode.com/todos').json()
+    for task in tasks_res:
+        if task['userId'] == emp_id:
+            if task['completed']:
+                tasks_titles.append(task['title'])
+                tasks_done += 1
+            tasks_total += 1
 
-total_tasks = len(todos)
-completed_tasks = sum(todo['completed'] for todo in todos)
+    print('Employee {} is done with tasks({}/{}):'.format(emp_name,
+                                                          tasks_done,
+                                                          tasks_total))
+    for title in tasks_titles:
+        print('\t {}'.format(title))
 
-# Print the employee TODO list progress
-print(
-    f"Employee {todos[0]['userId']} is done with tasks({completed_tasks}/{total_tasks}):")
 
-# Print the titles of completed tasks
-for todo in todos:
-    if todo['completed']:
-        print(f"\t{todo['title']}")
+if __name__ == '__main__':
+    get_api()
