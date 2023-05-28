@@ -1,44 +1,50 @@
 #!/usr/bin/python3
 """
-Script that use
-https://jsonplaceholder.typicode.com/guide/
-to get information
+    Method to given employee ID,
+    returns information about his/her TODO list progress
 """
-import requests
-from sys import argv, stderr, exit
+from requests import get
+from sys import argv
 
 
-def main():
-    if len(argv) < 2:
-        print("Usage: {} ID".format(argv[0]))
-        exit(1)
+def information_employee():
+    """
+       returns information about employees
+    """
+    id_employee = int(argv[1])
+    id_employee = int(argv[1])
+    employee_name = ""
+    number_of_done_task = 0
+    total_number_of_task = 0
+    task_title = []
 
-    employee_id = int(argv[1])
-    url = f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
-    response = requests.get(url)
-    url_name = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
-    response_name = requests.get(url_name)
+    url_users = 'https://jsonplaceholder.typicode.com/users'
+    url_todos = 'https://jsonplaceholder.typicode.com/todos'
 
-    if response.status_code == 200:
-        todos = response.json()
-        total_tasks = len(todos)
-        completed_tasks = [todo for todo in todos if todo['completed']]
-        num_completed_tasks = len(completed_tasks)
-    else:
-        print("Error fetching TODO list")
+    response_one = get(url_users)
+    response_two = get(url_todos)
 
-    if response_name.status_code == 200:
-        employee_data = response_name.json()
-        if "name" in employee_data:
-            employee_name = employee_data.get("name")
-    else:
-        print("Error fetching employee name")
+    if response_one.status_code == 200:
+        response_json_usr = response_one.json()
+        response_json_tod = response_two.json()
 
-    print("Employee {} is done with tasks({}/{}):"
-          .format(employee_name, num_completed_tasks, total_tasks))
-    for task in completed_tasks:
-        print("\t {}".format(task.get("title")))
+        for user in response_json_usr:
+            if (user['id'] == id_employee):
+                employee_name = user['name']
+
+                for tod in response_json_tod:
+                    if tod['userId'] == id_employee:
+                        total_number_of_task += 1
+                        if tod['completed'] is True:
+                            number_of_done_task += 1
+                            task_title.append(tod['title'])
+
+        print('Employee {} is done with tasks({}/{}):'
+              .format(employee_name, number_of_done_task,
+                      total_number_of_task))
+        for title in task_title:
+            print('\t {}'.format(title))
 
 
 if __name__ == "__main__":
-    main()
+    information_employee()
