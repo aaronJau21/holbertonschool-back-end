@@ -1,32 +1,24 @@
 #!/usr/bin/python3
-''' Export data in the JSON format '''
+"""Write a Python script that, using this REST"""
 import json
-import requests
+from requests import get
 from sys import argv
 
 
-def get_api():
-    ''' Gather data from an API '''
+if __name__ == "__main__":
     url = 'https://jsonplaceholder.typicode.com/'
-    uid = argv[1]
+    id_user = argv[1]
+    users = get('{}users/{}'.format(url, id_user)).json()
+    username = users.get('username')
+    tasks = get('{}todos?userId={}'.format(url, id_user)).json()
 
-    # get a specific user from users in jsonplaceholder
-    usr = requests.get(url + 'users/{}'.format(uid)).json()
-    # make a query string to get tasks based on user id
-    todo = requests.get(url + 'todos', params={'userId': uid}).json()
-
-    with open('{}.json'.format(uid), 'w') as file:
-        obj = {uid: []}
-        for employee in todo:
-            tmp_obj = {
-                'task': employee.get('title'),
-                'completed': employee.get('completed'),
-                'username': usr.get('username')
-            }
-            obj[uid].append(tmp_obj)
-        # serialize an onject into a JSON stream
-        json.dump(obj, file)
-
-
-if __name__ == '__main__':
-    get_api()
+    listof_task = []
+    for task in tasks:
+        dict_task = {"task": task['title'],
+                     "completed": task['completed'],
+                     "username": username}
+        listof_task.append(dict_task)
+    datas = {str(id_user): listof_task}
+    filename = '{}.json'.format(id_user)
+    with open(filename, 'w') as file:
+        json.dump(datas, file)
